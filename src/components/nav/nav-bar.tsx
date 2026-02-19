@@ -29,7 +29,7 @@ export async function NavBar() {
               ) : (
                 <NavigationMenuItem>
                   <Button asChild variant="default">
-                    <Link href="/auth/signup">Sign up</Link>
+                    <Link href="/auth/sign-in">Sign up</Link>
                   </Button>
                 </NavigationMenuItem>
               )}
