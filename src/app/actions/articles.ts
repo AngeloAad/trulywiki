@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { auth } from "@/lib/auth/server";
 
 export type CreateArticleInput = {
   title: string;
@@ -16,25 +17,49 @@ export type UpdateArticleInput = {
 };
 
 export async function createArticle(data: CreateArticleInput) {
+  const { data: session } = await auth.getSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
   // TODO: Replace with actual database call
   console.log("✨ createArticle called:", data);
   return { success: true, message: "Article create logged (stub)" };
 }
 
 export async function updateArticle(id: string, data: UpdateArticleInput) {
+  const { data: session } = await auth.getSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const authorId = session.user.id;
+
   // TODO: Replace with actual database update
-  console.log("📝 updateArticle called:", { id, ...data });
+  console.log("📝 updateArticle called:", { authorId, ...data });
   return { success: true, message: `Article ${id} update logged (stub)` };
 }
 
 export async function deleteArticle(id: string) {
+  const { data: session } = await auth.getSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const authorId = session.user.id;
+
   // TODO: Replace with actual database delete
-  console.log("🗑️ deleteArticle called:", id);
+  console.log("🗑️ deleteArticle called:", { authorId, id });
   return { success: true, message: `Article ${id} delete logged (stub)` };
 }
 
 // Form-friendly server action: accepts FormData from a client form and calls deleteArticle
 export async function deleteArticleForm(formData: FormData): Promise<void> {
+  const { data: session } = await auth.getSession();
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
   const id = formData.get("id");
   if (!id) {
     throw new Error("Missing article id");
