@@ -1,3 +1,4 @@
+import { UserButton } from "@neondatabase/auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -5,8 +6,10 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
+import { auth } from "@/lib/auth/server";
 
-export function NavBar() {
+export async function NavBar() {
+  const { data: session } = await auth.getSession();
   return (
     <nav className="w-full border-b bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/60 sticky top-0 z-50">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -19,16 +22,17 @@ export function NavBar() {
           </Link>
           <NavigationMenu>
             <NavigationMenuList className="flex items-center gap-2">
-              <NavigationMenuItem>
-                <Button asChild variant="outline">
-                  <Link href="/signin">Sign in</Link>
-                </Button>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Button asChild variant="default">
-                  <Link href="/signup">Sign up</Link>
-                </Button>
-              </NavigationMenuItem>
+              {session?.user ? (
+                <NavigationMenuItem>
+                  <UserButton size="icon" />
+                </NavigationMenuItem>
+              ) : (
+                <NavigationMenuItem>
+                  <Button asChild variant="default">
+                    <Link href="/auth/signup">Sign up</Link>
+                  </Button>
+                </NavigationMenuItem>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
         </div>

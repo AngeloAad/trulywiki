@@ -10,6 +10,7 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@neondatabase/auth": "^0.2.0-beta.1",
     "@radix-ui/react-navigation-menu": "^1.2.14",
     "@radix-ui/react-slot": "^1.2.4",
     "@uiw/react-markdown-preview": "^5.1.5",

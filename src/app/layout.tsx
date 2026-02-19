@@ -1,7 +1,10 @@
+import { NeonAuthUIProvider } from "@neondatabase/auth/react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { SessionRefreshOnMount } from "@/components/auth/session-refresh-on-mount";
 import { NavBar } from "@/components/nav/nav-bar";
+import { authClient } from "@/lib/auth/client";
+import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,12 +27,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NavBar />
-        {children}
+        <NeonAuthUIProvider
+          authClient={authClient}
+          redirectTo="/account/settings"
+          emailOTP
+          social={{
+            providers: ["google", "github"],
+          }}
+          credentials={{ forgotPassword: true }}
+          organization
+        >
+          {/* <SessionRefreshOnMount /> */}
+          <NavBar />
+          {children}
+        </NeonAuthUIProvider>
       </body>
     </html>
   );
