@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { ensureUserExists } from "@/db/sync-user";
 import { auth } from "@/lib/auth/server";
 
 export type CreateArticleInput = {
@@ -21,6 +22,8 @@ export async function createArticle(data: CreateArticleInput) {
   if (!session?.user) {
     throw new Error("Unauthorized");
   }
+
+  await ensureUserExists(session.user);
 
   // TODO: Replace with actual database call
   console.log("✨ createArticle called:", data);
