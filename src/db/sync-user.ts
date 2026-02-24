@@ -3,8 +3,8 @@ import db from "./index";
 
 type NeonAuthUser = {
   id: string;
-  displayName: string | null;
-  primaryEmail: string | null;
+  name: string;
+  email: string;
 };
 
 /**
@@ -18,14 +18,14 @@ export async function ensureUserExists(
     .insert(usersSync)
     .values({
       id: neonAuthUser.id,
-      name: neonAuthUser.displayName,
-      email: neonAuthUser.primaryEmail,
+      name: neonAuthUser.name,
+      email: neonAuthUser.email,
     })
     .onConflictDoUpdate({
       target: usersSync.id,
       set: {
-        name: neonAuthUser.displayName,
-        email: neonAuthUser.primaryEmail,
+        name: neonAuthUser.name,
+        email: neonAuthUser.email,
       },
     });
 }

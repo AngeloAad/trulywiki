@@ -72,3 +72,9 @@ export async function deleteArticleForm(formData: FormData): Promise<void> {
   // After deleting, redirect the user back to the homepage.
   redirect("/");
 }
+
+import { getArticles } from "@/lib/data/articles";
+
+export async function fetchArticlesAction(page: number = 1) {
+  return await getArticles(page);
+}

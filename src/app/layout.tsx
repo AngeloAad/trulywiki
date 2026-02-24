@@ -1,7 +1,6 @@
 import { NeonAuthUIProvider } from "@neondatabase/auth/react";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SessionRefreshOnMount } from "@/components/auth/session-refresh-on-mount";
 import { NavBar } from "@/components/nav/nav-bar";
 import { authClient } from "@/lib/auth/client";
 import "./globals.css";
@@ -41,7 +40,6 @@ export default function RootLayout({
           credentials={{ forgotPassword: true }}
           organization
         >
-          {/* <SessionRefreshOnMount /> */}
           <NavBar />
           {children}
         </NeonAuthUIProvider>
