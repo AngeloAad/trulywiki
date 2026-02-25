@@ -4,6 +4,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { NavBar } from "@/components/nav/nav-bar";
 import { authClient } from "@/lib/auth/client";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -42,6 +43,7 @@ export default function RootLayout({
         >
           <NavBar />
           {children}
+          <Toaster />
         </NeonAuthUIProvider>
       </body>
     </html>

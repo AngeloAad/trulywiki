@@ -1,9 +1,13 @@
 "use client";
 
 import MDEditor from "@uiw/react-md-editor";
-import { Upload, X } from "lucide-react";
+import { TriangleAlert, Upload, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
+import { toast } from "sonner";
+import { createArticle, updateArticle } from "@/app/actions/articles";
+import { uploadFile } from "@/app/actions/upload";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,12 +18,7 @@ interface WikiEditorProps {
   initialContent?: string;
   isEditing?: boolean;
   articleId?: string;
-}
-
-interface FormData {
-  title: string;
-  content: string;
-  files: File[];
+  authorId?: string;
 }
 
 interface FormErrors {
@@ -32,13 +31,14 @@ export default function WikiEditor({
   initialContent = "",
   isEditing = false,
   articleId,
+  authorId = "user-1",
 }: WikiEditorProps) {
   const [title, setTitle] = useState(initialTitle);
   const [content, setContent] = useState(initialContent);
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
+  const router = useRouter();
   // Validate form
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -79,42 +79,61 @@ export default function WikiEditor({
 
     setIsSubmitting(true);
 
-    const formData: FormData = {
-      title: title.trim(),
-      content: content.trim(),
-      files,
-    };
+    try {
+      let imageUrl: string | undefined;
 
-    // Log the form data (as requested - no actual API calls)
-    console.log("Form submitted:", {
-      action: isEditing ? "edit" : "create",
-      articleId: isEditing ? articleId : undefined,
-      data: formData,
-    });
+      if (files.length > 0) {
+        const formData = new FormData();
+        formData.append("files", files[0]);
 
-    // Simulate API call delay
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+        const uploaded = await uploadFile(formData);
+        imageUrl = uploaded?.url;
+      }
 
-    setIsSubmitting(false);
+      const payload = {
+        title: title.trim(),
+        content: content.trim(),
+        imageUrl,
+        authorId: authorId,
+      };
 
-    // In a real app, you would navigate after successful submission
-    alert(
-      `Article ${
-        isEditing ? "updated" : "created"
-      } successfully! Check console for form data.`,
-    );
+      if (isEditing && articleId) {
+        const result = await updateArticle(articleId, payload);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to update article");
+        }
+        router.push(`/wiki/${articleId}`);
+      } else {
+        const result = await createArticle(payload);
+        if (!result.success) {
+          throw new Error(result.error || "Failed to create article");
+        }
+
+        if (result.id) {
+          router.push(`/wiki/${result.id}`);
+        } else {
+          router.push("/");
+        }
+      }
+    } catch (err) {
+      toast.error("Failed to submit article", {
+        description: `${err}`,
+        duration: 3000,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Handle cancel
   const handleCancel = () => {
-    // In a real app, you would navigate back
-    const shouldLeave = window.confirm(
-      "Are you sure you want to cancel? Any unsaved changes will be lost.",
-    );
-    if (shouldLeave) {
-      console.log("User cancelled editing");
-      // navigation logic would go here
-    }
+    toast.info("You have cancelled the editing", {
+      className: "bg-amber-50 dark:bg-amber-950",
+      description: "Any unsaved changes will be lost",
+      duration: 3000,
+      icon: <TriangleAlert />,
+    });
+    router.push(`/wiki/${articleId ? articleId : "new"}`);
   };
 
   const pageTitle = isEditing ? "Edit Article" : "Create New Article";
@@ -219,7 +238,9 @@ export default function WikiEditor({
               {/* Display uploaded files */}
               {files.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">Uploaded Files:</Label>
+                  <Label className="text-sm font-medium">
+                    Uploaded Files:
+                  </Label>
                   <div className="space-y-2">
                     {files.map((file, index) => (
                       <div
