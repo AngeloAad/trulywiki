@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface ViewerArticle {
+  id: number;
   title: string;
   author: string | null;
-  id: number;
   content: string;
   createdAt: string;
   imageUrl?: string | null;
@@ -30,7 +30,6 @@ export default function WikiArticleViewer({
   article,
   canEdit = false,
 }: WikiArticleViewerProps) {
-
   const router = useRouter();
 
   // Format date for display

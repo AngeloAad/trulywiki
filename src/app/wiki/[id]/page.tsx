@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import WikiArticleViewer from "@/components/wiki-article-viewer";
+import { authorizedUserToEditArticle } from "@/db/authz";
+import { auth } from "@/lib/auth/server";
 import { getArticleById } from "@/lib/data/articles";
 
 interface ViewArticlePageProps {
@@ -11,6 +13,7 @@ interface ViewArticlePageProps {
 export default async function ViewArticlePage({
   params,
 }: ViewArticlePageProps) {
+  const { data: session } = await auth.getSession();
   const { id } = await params;
   const article = await getArticleById(Number(id));
 
@@ -18,8 +21,9 @@ export default async function ViewArticlePage({
     notFound();
   }
 
-  // Mock permission check - in a real app, this would come from auth/user context
-  const canEdit = true; // Set to true for demonstration
+  const authorizedUser = session?.user?.id
+    ? await authorizedUserToEditArticle(session.user.id, Number(id))
+    : false;
 
-  return <WikiArticleViewer article={article} canEdit={canEdit} />;
+  return <WikiArticleViewer article={article} canEdit={authorizedUser} />;
 }

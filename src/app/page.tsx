@@ -8,7 +8,7 @@ export default async function Home({
   searchParams: Promise<{ page?: string }>;
 }) {
   const { page } = await searchParams;
-  const currentPage = page ? Number.parseInt(page) : 1;
+  const currentPage = page ? Number.parseInt(page, 10) : 1;
   const { articles, totalPages } = await getArticles(currentPage);
 
   return (

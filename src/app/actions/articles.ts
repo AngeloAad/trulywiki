@@ -1,13 +1,14 @@
 "use server";
 
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import db from "@/db";
+import { authorizedUserToEditArticle } from "@/db/authz";
 import { articles } from "@/db/schema";
 import { ensureUserExists } from "@/db/sync-user";
 import { auth } from "@/lib/auth/server";
 import { getArticles } from "@/lib/data/articles";
-import { revalidatePath } from "next/cache";
 
 export type CreateArticleInput = {
   title: string;
@@ -46,17 +47,34 @@ export async function createArticle(data: CreateArticleInput) {
 
     revalidatePath("/");
 
-    return { success: true, message: "Article created successfully", id: articleId };
+    return {
+      success: true,
+      message: "Article created successfully",
+      id: articleId,
+    };
   } catch (error) {
     console.error("Failed to create article:", error);
-    return { success: false, error: "Failed to create the article. Please try again later." };
+    return {
+      success: false,
+      error: "Failed to create the article. Please try again later.",
+    };
   }
 }
 
 export async function updateArticle(id: string, data: UpdateArticleInput) {
   const { data: session } = await auth.getSession();
+
   if (!session?.user) {
     return { success: false, error: "Unauthorized" };
+  }
+
+  const authorizedUser = await authorizedUserToEditArticle(
+    session.user.id,
+    Number(id),
+  );
+
+  if (!authorizedUser) {
+    return { success: false, error: "Forbidden" };
   }
 
   try {
@@ -74,7 +92,10 @@ export async function updateArticle(id: string, data: UpdateArticleInput) {
     return { success: true, message: `Article updated successfully` };
   } catch (error) {
     console.error("Failed to update article:", error);
-    return { success: false, error: "Failed to update the article. Please try again later." };
+    return {
+      success: false,
+      error: "Failed to update the article. Please try again later.",
+    };
   }
 }
 
@@ -82,6 +103,15 @@ export async function deleteArticle(id: string) {
   const { data: session } = await auth.getSession();
   if (!session?.user) {
     return { success: false, error: "Unauthorized" };
+  }
+
+  const authorizedUser = await authorizedUserToEditArticle(
+    session.user.id,
+    Number(id),
+  );
+
+  if (!authorizedUser) {
+    return { success: false, error: "Forbidden" };
   }
 
   try {

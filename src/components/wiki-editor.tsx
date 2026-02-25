@@ -102,12 +102,15 @@ export default function WikiEditor({
         if (!result.success) {
           throw new Error(result.error || "Failed to update article");
         }
+        toast.success(result.message || "Article updated successfully");
         router.push(`/wiki/${articleId}`);
       } else {
         const result = await createArticle(payload);
         if (!result.success) {
           throw new Error(result.error || "Failed to create article");
         }
+
+        toast.success(result.message || "Article created successfully");
 
         if (result.id) {
           router.push(`/wiki/${result.id}`);
@@ -238,9 +241,7 @@ export default function WikiEditor({
               {/* Display uploaded files */}
               {files.length > 0 && (
                 <div className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    Uploaded Files:
-                  </Label>
+                  <Label className="text-sm font-medium">Uploaded Files:</Label>
                   <div className="space-y-2">
                     {files.map((file, index) => (
                       <div
