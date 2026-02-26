@@ -87,7 +87,10 @@ export default function WikiEditor({
         formData.append("files", files[0]);
 
         const uploaded = await uploadFile(formData);
-        imageUrl = uploaded?.url;
+        if (!uploaded.success) {
+          throw new Error(uploaded.error || "Failed to upload image");
+        }
+        imageUrl = uploaded.url;
       }
 
       const payload = {

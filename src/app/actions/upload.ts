@@ -1,5 +1,6 @@
 "use server";
 
+import { put } from "@vercel/blob";
 import { auth } from "@/lib/auth/server";
 
 // Server action to handle uploads (stub)
@@ -12,10 +13,14 @@ export type UploadedFile = {
   filename?: string;
 };
 
-export async function uploadFile(formData: FormData): Promise<UploadedFile> {
+export type UploadResponse =
+  | ({ success: true; message: string } & UploadedFile)
+  | { success: false; error: string };
+
+export async function uploadFile(formData: FormData): Promise<UploadResponse> {
   const { data: session } = await auth.getSession();
   if (!session?.user) {
-    throw new Error("Unauthorized");
+    return { success: false, error: "Unauthorized" };
   }
 
   // Basic validation constants
@@ -31,25 +36,33 @@ export async function uploadFile(formData: FormData): Promise<UploadedFile> {
   );
 
   if (!file) {
-    throw new Error("No file provided");
+    return { success: false, error: "No file provided" };
   }
 
   if (!ALLOWED.includes(file.type)) {
-    throw new Error("Invalid file type");
+    return { success: false, error: "Invalid file type" };
   }
 
   if (file.size > MAX_FILE_SIZE) {
-    throw new Error("File too large");
+    return { success: false, error: "File too large" };
   }
 
-  // TODO: Insert Cloudinary upload code here.
-  // Example: upload using Cloudinary SDK on the server and return secure_url
+  try {
+    const blob = await put(file.name, file, {
+      access: "public",
+      addRandomSuffix: true,
+    });
 
-  // Return mock file info for now
-  return {
-    url: "/uploads/mock-image.jpg",
-    size: file.size,
-    type: file.type,
-    filename: file.name,
-  };
+    return {
+      url: blob.url ?? "",
+      size: file.size,
+      type: file.type,
+      filename: blob.pathname ?? file.name,
+      success: true,
+      message: "Image Uploaded successfully",
+    };
+  } catch (error) {
+    console.error("❌ Vercel Blob upload error:", error);
+    return { success: false, error: "Failed to upload to Vercel Blob" };
+  }
 }

@@ -23,7 +23,7 @@ export type UpdateArticleInput = {
   imageUrl?: string;
 };
 
-export async function createArticle(data: CreateArticleInput) {
+export async function createArticle(articleData: CreateArticleInput) {
   const { data: session } = await auth.getSession();
   if (!session?.user) {
     return { success: false, error: "Unauthorized" };
@@ -35,11 +35,12 @@ export async function createArticle(data: CreateArticleInput) {
     const response = await db
       .insert(articles)
       .values({
-        title: data.title,
-        content: data.content,
+        title: articleData.title,
+        content: articleData.content,
         slug: `${Date.now()}`,
         published: true,
         authorId: session.user.id,
+        imageUrl: articleData.imageUrl ?? undefined,
       })
       .returning({ id: articles.id });
 
@@ -61,7 +62,7 @@ export async function createArticle(data: CreateArticleInput) {
   }
 }
 
-export async function updateArticle(id: string, data: UpdateArticleInput) {
+export async function updateArticle(id: string, articleData: UpdateArticleInput) {
   const { data: session } = await auth.getSession();
 
   if (!session?.user) {
@@ -81,8 +82,9 @@ export async function updateArticle(id: string, data: UpdateArticleInput) {
     await db
       .update(articles)
       .set({
-        title: data.title,
-        content: data.content,
+        title: articleData.title,
+        content: articleData.content,
+        imageUrl: articleData.imageUrl ?? undefined,
       })
       .where(eq(articles.id, Number(id)));
 
