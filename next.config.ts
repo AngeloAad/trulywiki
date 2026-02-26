@@ -4,6 +4,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   reactCompiler: true,
+  images: {
+    remotePatterns: [new URL(`${process.env.BLOB_BASE_URL}/**`)]
+  },
   turbopack: {
     root: dirname(__filename),
   },
