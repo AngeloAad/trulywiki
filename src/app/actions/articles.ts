@@ -3,13 +3,13 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import redis from "@/cache";
 import db from "@/db";
 import { authorizedUserToEditArticle } from "@/db/authz";
 import { articles } from "@/db/schema";
 import { ensureUserExists } from "@/db/sync-user";
 import { auth } from "@/lib/auth/server";
 import { getArticles } from "@/lib/data/articles";
-import redis from "@/cache";
 
 export type CreateArticleInput = {
   title: string;
