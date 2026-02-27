@@ -2,6 +2,11 @@ import { eq } from "drizzle-orm";
 import db from "@/db";
 import { articles, usersSync } from "@/db/schema";
 import resend from ".";
+import CelebrationTemplate from "./templates/celebration-template";
+
+const BASE_URL = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "http://localhost:3000";
 
 export default async function sendCelebrationEmail(
   articleId: number,
@@ -12,6 +17,8 @@ export default async function sendCelebrationEmail(
       .select({
         email: usersSync.email,
         id: usersSync.id,
+        name: usersSync.name,
+        title: articles.title,
       })
       .from(articles)
       .leftJoin(usersSync, eq(articles.authorId, usersSync.id))
@@ -22,7 +29,7 @@ export default async function sendCelebrationEmail(
       return;
     }
 
-    const { email, id } = response[0];
+    const { email, id, name, title } = response[0];
 
     if (!email) {
       console.log(
@@ -35,7 +42,14 @@ export default async function sendCelebrationEmail(
       from: "TrulyWiki <noreply@angeloworks.com>",
       to: email,
       subject: `✨ You article got ${pageviews} views! ✨`,
-      html: "<h1>Congrats!</h1><p>You're an amazing author!</p>",
+      react: (
+        <CelebrationTemplate
+          articleTitle={title}
+          articleUrl={`${BASE_URL}/wiki/${articleId}`}
+          name={name ?? "Friend"}
+          pageviews={pageviews}
+        />
+      ),
     });
     if (!emailRes.error) {
       console.log(

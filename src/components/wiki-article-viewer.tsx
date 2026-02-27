@@ -111,11 +111,11 @@ export default function WikiArticleViewer({
               <Calendar className="h-4 w-4 mr-1" />
               <span>{formatDate(article.createdAt)}</span>
             </div>
+            <Badge variant="secondary">Article</Badge>
             <div className="flex items-center">
               <Eye className="h-4 w-4 mr-1" />
               <span>{views !== null ? views : "..."} views</span>
             </div>
-            <Badge variant="secondary">Article</Badge>
           </div>
         </div>
       </div>
