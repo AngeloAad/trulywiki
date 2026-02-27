@@ -18,9 +18,9 @@ export default async function Home({
           <WikiCard
             key={article.id}
             title={article.title}
-            author={article.author || "Unknown"}
+            author={article.author ?? "Unknown"}
             date={article.createdAt}
-            summary={article.content}
+            summary={article.summary ?? "Summary not done yet"}
             href={`/wiki/${article.id}`}
           />
         ))}

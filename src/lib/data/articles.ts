@@ -9,6 +9,7 @@ export type ArticleListItem = {
   content: string;
   author: string | null;
   imageUrl?: string | null;
+  summary?: string | null;
   createdAt: string;
 };
 
@@ -36,6 +37,7 @@ export async function getArticles(page: number = 1, pageSize: number = 10) {
       createdAt: articles.createdAt,
       content: articles.content,
       author: usersSync.name,
+      summary: articles.summary,
     })
     .from(articles)
     .leftJoin(usersSync, eq(articles.authorId, usersSync.id))

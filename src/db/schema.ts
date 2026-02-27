@@ -10,6 +10,7 @@ export const articles = pgTable("articles", {
   authorId: text("author_id")
     .notNull()
     .references(() => usersSync.id),
+  summary: text("summary"),
   createdAt: timestamp("created_at", { mode: "string" }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { mode: "string" }).defaultNow().notNull(),
 });
