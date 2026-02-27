@@ -9,6 +9,7 @@ import { articles } from "@/db/schema";
 import { ensureUserExists } from "@/db/sync-user";
 import { auth } from "@/lib/auth/server";
 import { getArticles } from "@/lib/data/articles";
+import redis from "@/cache";
 
 export type CreateArticleInput = {
   title: string;
@@ -44,6 +45,8 @@ export async function createArticle(articleData: CreateArticleInput) {
       })
       .returning({ id: articles.id });
 
+    redis.del("articles:all");
+
     const articleId = response[0]?.id;
 
     revalidatePath("/");
@@ -62,7 +65,10 @@ export async function createArticle(articleData: CreateArticleInput) {
   }
 }
 
-export async function updateArticle(id: string, articleData: UpdateArticleInput) {
+export async function updateArticle(
+  id: string,
+  articleData: UpdateArticleInput,
+) {
   const { data: session } = await auth.getSession();
 
   if (!session?.user) {

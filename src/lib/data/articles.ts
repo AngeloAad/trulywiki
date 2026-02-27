@@ -1,12 +1,34 @@
 import { count, desc, eq } from "drizzle-orm";
+import redis from "@/cache";
 import db from "@/db";
 import { articles, usersSync } from "@/db/schema";
 
+export type ArticleListItem = {
+  id: number;
+  title: string;
+  content: string;
+  author: string | null;
+  imageUrl?: string | null;
+  createdAt: string;
+};
+
+export type PaginatedArticles = {
+  articles: ArticleListItem[];
+  totalPages: number;
+  currentPage: number;
+};
+
 export async function getArticles(page: number = 1, pageSize: number = 10) {
-  // 1. Calculate how many rows to skip
+  const cached = await redis.get<PaginatedArticles>("articles:all");
+
+  if (cached) {
+    console.log("✅ Get Articles Cache Hit!");
+    return cached;
+  }
+  console.log("🆕 Get Articles Cache Miss!");
+
   const offset = (page - 1) * pageSize;
 
-  // 2. Fetch exactly the page we need, ordered by newest first
   const data = await db
     .select({
       title: articles.title,
@@ -21,17 +43,36 @@ export async function getArticles(page: number = 1, pageSize: number = 10) {
     .limit(pageSize)
     .offset(offset);
 
-  // 3. Get the total count of articles so we can calculate total pages
   const [totalResult] = await db.select({ count: count() }).from(articles);
   const total = totalResult.count;
   const totalPages = Math.ceil(total / pageSize);
 
-  return {
+  const response: PaginatedArticles = {
     articles: data,
     totalPages,
     currentPage: page,
   };
+
+  try {
+    // Upstash automatically serializes objects, no need for JSON.stringify!
+    redis.set("articles:all", response, {
+      ex: 60,
+    });
+  } catch (error) {
+    console.warn("Failed to set articles cache", error);
+  }
+
+  return response;
 }
+
+export type ArticleWithAuthor = {
+  id: number;
+  title: string;
+  content: string;
+  author: string | null;
+  imageUrl?: string | null;
+  createdAt: string;
+};
 
 export async function getArticleById(id: number) {
   const response = await db
@@ -46,5 +87,6 @@ export async function getArticleById(id: number) {
     .from(articles)
     .where(eq(articles.id, id))
     .leftJoin(usersSync, eq(articles.authorId, usersSync.id));
-  return response[0] ? response[0] : null;
+
+  return response[0] ? (response[0] as unknown as ArticleWithAuthor) : null;
 }
