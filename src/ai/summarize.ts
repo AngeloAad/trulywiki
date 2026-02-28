@@ -1,4 +1,6 @@
+// import { openai } from "@ai-sdk/openai";
 import { generateText } from "ai";
+
 export async function summarizeArticle(
   title: string,
   article: string,
