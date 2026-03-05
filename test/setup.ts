@@ -28,6 +28,8 @@ vi.mock("@upstash/redis", () => ({
     get = vi.fn();
     set = vi.fn();
     del = vi.fn();
+    // Return an empty scan result so clearArticlesCache() is a no-op in tests
+    scan = vi.fn().mockResolvedValue([0, []]);
   },
 }));
 

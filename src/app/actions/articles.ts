@@ -4,13 +4,12 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import summarizeArticle from "@/ai/summarize";
-import redis from "@/cache";
 import db from "@/db";
 import { authorizedUserToEditArticle } from "@/db/authz";
 import { articles } from "@/db/schema";
 import { ensureUserExists } from "@/db/sync-user";
 import { auth } from "@/lib/auth/server";
-import { getArticles } from "@/lib/data/articles";
+import { clearArticlesCache, getArticles } from "@/lib/data/articles";
 
 export type CreateArticleInput = {
   title: string;
@@ -52,7 +51,7 @@ export async function createArticle(articleData: CreateArticleInput) {
       })
       .returning({ id: articles.id });
 
-    redis.del("articles:all");
+    await clearArticlesCache();
 
     const articleId = response[0]?.id;
 

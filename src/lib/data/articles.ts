@@ -19,8 +19,23 @@ export type PaginatedArticles = {
   currentPage: number;
 };
 
+export async function clearArticlesCache() {
+  try {
+    const [, keys] = await redis.scan(0, { match: "articles:page:*", count: 100 });
+    if (keys.length > 0) {
+      await redis.del(...(keys as [string, ...string[]]));
+    }
+  } catch (error) {
+    console.warn("Failed to clear articles cache keys", error);
+  }
+}
+
 export async function getArticles(page: number = 1, pageSize: number = 10) {
-  const cached = await redis.get<PaginatedArticles>("articles:all");
+  // Include page + pageSize in the cache key so each page
+  // gets its own cached slice instead of always returning
+  // whatever was cached for the first request.
+  const cacheKey = `articles:page:${page}:size:${pageSize}`;
+  const cached = await redis.get<PaginatedArticles>(cacheKey);
 
   if (cached) {
     console.log("✅ Get Articles Cache Hit!");
@@ -57,7 +72,7 @@ export async function getArticles(page: number = 1, pageSize: number = 10) {
 
   try {
     // Upstash automatically serializes objects, no need for JSON.stringify!
-    redis.set("articles:all", response, {
+    await redis.set(cacheKey, response, {
       ex: 60,
     });
   } catch (error) {

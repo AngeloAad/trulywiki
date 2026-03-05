@@ -1,11 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import summarizeArticle from "@/ai/summarize";
-import {
-  createArticle,
-  deleteArticle,
-  updateArticle,
-} from "@/app/actions/articles";
-import redis from "@/cache";
+import { createArticle, deleteArticle, updateArticle } from "@/app/actions/articles";
 import * as authz from "@/db/authz";
 import db from "@/db/index";
 import { articles } from "@/db/schema";
@@ -22,7 +17,6 @@ vi.mock("@/lib/auth/server", () => ({
   },
 }));
 vi.mock("@/db/authz");
-vi.mock("@/cache");
 vi.mock("@/ai/summarize");
 vi.mock("@/db/sync-user");
 
@@ -41,7 +35,6 @@ describe("Article Actions", () => {
       error: null,
     } as any);
     vi.mocked(summarizeArticle).mockResolvedValue("Test summary");
-    vi.mocked(redis.del).mockResolvedValue(1);
   });
 
   describe("createArticle", () => {
@@ -67,7 +60,6 @@ describe("Article Actions", () => {
         id: 1,
       });
       expect(db.insert).toHaveBeenCalledWith(articles);
-      expect(redis.del).toHaveBeenCalledWith("articles:all");
     });
 
     it("should throw error when user is not authenticated", async () => {

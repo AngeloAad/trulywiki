@@ -1,9 +1,9 @@
 import { eq, isNull } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import summarizeArticle from "@/ai/summarize";
-import redis from "@/cache";
 import db from "@/db";
 import { articles } from "@/db/schema";
+import { clearArticlesCache } from "@/lib/data/articles";
 
 export async function GET(req: NextRequest) {
   if (
@@ -48,12 +48,7 @@ export async function GET(req: NextRequest) {
   }
 
   if (updated > 0) {
-    // Clear articles cache used by getArticles
-    try {
-      await redis.del("articles:all");
-    } catch (error) {
-      console.warn("⚠️ Failed to clear articles cache", error);
-    }
+    await clearArticlesCache();
   }
 
   console.log(`🤖 Concluding AI summary job, updated ${updated} rows`);
