@@ -13,7 +13,9 @@ export default function ClientRenderedPage() {
         Authenticated:{" "}
         <span
           className={
-            data?.session ? "text-primary font-semibold" : "text-destructive font-semibold"
+            data?.session
+              ? "text-primary font-semibold"
+              : "text-destructive font-semibold"
           }
         >
           {data?.session ? "Yes" : "No"}
@@ -24,9 +26,7 @@ export default function ClientRenderedPage() {
         <p className="text-muted-foreground">User ID: {data.user.id}</p>
       )}
 
-      <p className="font-medium text-foreground">
-        Session and User Data:
-      </p>
+      <p className="font-medium text-foreground">Session and User Data:</p>
 
       <pre className="bg-card p-4 rounded text-sm overflow-x-auto text-card-foreground border border-border">
         {JSON.stringify({ session: data?.session, user: data?.user }, null, 2)}

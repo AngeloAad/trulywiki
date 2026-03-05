@@ -14,7 +14,9 @@ export default async function ServerRenderedPage() {
         Authenticated:{" "}
         <span
           className={
-            session ? "text-primary font-semibold" : "text-destructive font-semibold"
+            session
+              ? "text-primary font-semibold"
+              : "text-destructive font-semibold"
           }
         >
           {session ? "Yes" : "No"}
@@ -25,9 +27,7 @@ export default async function ServerRenderedPage() {
         <p className="text-muted-foreground">User ID: {session.user.id}</p>
       )}
 
-      <p className="font-medium text-foreground">
-        Session and User Data:
-      </p>
+      <p className="font-medium text-foreground">Session and User Data:</p>
 
       <pre className="bg-card p-4 rounded text-sm overflow-x-auto text-card-foreground border border-border">
         {JSON.stringify(
