@@ -1,3 +1,5 @@
+"use client";
+
 import { UserButton } from "@neondatabase/auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -6,10 +8,11 @@ import {
   NavigationMenuItem,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu";
-import { auth } from "@/lib/auth/server";
+import { authClient } from "@/lib/auth/client";
 
-export async function NavBar() {
-  const { data: session } = await auth.getSession();
+export function NavBar() {
+  const { data: session } = authClient.useSession();
+
   return (
     <nav className="w-full border-b bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/60 sticky top-0 z-50">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -27,7 +30,7 @@ export async function NavBar() {
                   <Button>
                     <Link href="/wiki/edit/new">New Article</Link>
                   </Button>
-                  
+
                   <NavigationMenuItem>
                     <UserButton size="icon" />
                   </NavigationMenuItem>
