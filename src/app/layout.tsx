@@ -5,6 +5,7 @@ import { NavBar } from "@/components/nav/nav-bar";
 import { authClient } from "@/lib/auth/client";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -45,6 +46,7 @@ export default function RootLayout({
           <NavBar />
           {children}
           <Analytics />
+          <SpeedInsights />
           <Toaster />
         </NeonAuthUIProvider>
       </body>
