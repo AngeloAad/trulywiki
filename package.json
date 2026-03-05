@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit",
     "typecheck:watch": "tsc --noEmit --watch",
     "lint": "biome check",
+    "lint:fix": "biome check --write",
     "format": "biome format --write",
     "db:seed": "tsx src/db/seed.ts",
     "db:generate": "drizzle-kit generate",
@@ -17,7 +18,11 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "test:e2e:debug": "playwright test --debug"
+    "test:e2e:debug": "playwright test --debug",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ci": "playwright test --reporter=list",
+    "test:ci": "bun run test && bun run test:e2e:ci",
+    "test:all": "bun run test:ci"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.37",
