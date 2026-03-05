@@ -21,7 +21,10 @@ export type PaginatedArticles = {
 
 export async function clearArticlesCache() {
   try {
-    const [, keys] = await redis.scan(0, { match: "articles:page:*", count: 100 });
+    const [, keys] = await redis.scan(0, {
+      match: "articles:page:*",
+      count: 100,
+    });
     if (keys.length > 0) {
       await redis.del(...(keys as [string, ...string[]]));
     }

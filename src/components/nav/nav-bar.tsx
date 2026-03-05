@@ -23,9 +23,15 @@ export async function NavBar() {
           <NavigationMenu>
             <NavigationMenuList className="flex items-center gap-2">
               {session?.user ? (
-                <NavigationMenuItem>
-                  <UserButton size="icon" />
-                </NavigationMenuItem>
+                <div className="flex justify-center items-center gap-4">
+                  <Button>
+                    <Link href="/wiki/edit/new">New Article</Link>
+                  </Button>
+                  
+                  <NavigationMenuItem>
+                    <UserButton size="icon" />
+                  </NavigationMenuItem>
+                </div>
               ) : (
                 <NavigationMenuItem>
                   <Button asChild variant="default">

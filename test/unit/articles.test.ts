@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import summarizeArticle from "@/ai/summarize";
-import { createArticle, deleteArticle, updateArticle } from "@/app/actions/articles";
+import {
+  createArticle,
+  deleteArticle,
+  updateArticle,
+} from "@/app/actions/articles";
 import * as authz from "@/db/authz";
 import db from "@/db/index";
 import { articles } from "@/db/schema";

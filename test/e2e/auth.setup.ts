@@ -42,13 +42,10 @@ setup("authenticate", async ({ page }) => {
     // Should redirect to home page or account settings
     await page.waitForURL(/^(?!.*auth).*$/, { timeout: 10000 });
 
-    // Verify we're logged in by checking for the user menu or "New Article" button
-    await expect(
-      page
-        .locator("text=New Article")
-        .or(page.locator("text=TrulyWiki"))
-        .or(page.getByRole("button", { name: "User menu" })),
-    ).toBeVisible({ timeout: 5000 });
+    // Verify we're logged in by checking for the "New Article" button
+    await expect(page.getByRole("link", { name: "New Article" })).toBeVisible({
+      timeout: 5000,
+    });
 
     console.log("✅ Authentication successful");
 
