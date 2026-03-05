@@ -55,7 +55,6 @@ export default function WikiEditor({
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle file upload
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = event.target.files;
     if (selectedFiles) {
@@ -64,12 +63,10 @@ export default function WikiEditor({
     }
   };
 
-  // Remove file
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Handle form submission
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -131,7 +128,6 @@ export default function WikiEditor({
     }
   };
 
-  // Handle cancel
   const handleCancel = () => {
     toast.info("You have cancelled the editing", {
       className: "bg-amber-50 dark:bg-amber-950",
@@ -139,7 +135,9 @@ export default function WikiEditor({
       duration: 3000,
       icon: <TriangleAlert />,
     });
-    router.push(`/wiki/${articleId ? articleId : "new"}`);
+    if (articleId) {
+      router.push(`/wiki/${articleId}`);
+    } else router.push(`/`);
   };
 
   const pageTitle = isEditing ? "Edit Article" : "Create New Article";
